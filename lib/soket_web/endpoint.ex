@@ -1,6 +1,48 @@
 defmodule SoketWeb.Endpoint do
   use Phoenix.Endpoint, otp_app: :soket
 
+  @impl true
+  def init(_, config) do
+    # Using passed fds if available
+    Code.ensure_all_loaded([:gen_tcp, Bandit, ThousandIsland.Transports.TCP])
+
+    Extrace.calls(
+      [
+        {:gen_tcp, :listen, :_},
+        {Bandit, :start_link, :_},
+        {ThousandIsland.Transports.TCP, :start_link, :_}
+      ],
+      5
+    )
+    |> IO.inspect()
+
+    passed_in_socket_conf =
+      if fd = socket_file_descriptor() do
+        [
+          http:
+            Keyword.merge(config[:http],
+              ip: {0, 0, 0, 0, 0, 0, 0, 0},
+              port: 0,
+              thousand_island_options: [
+                transport_options: [:inet6, port: 0, fd: fd, debug: true]
+              ]
+            )
+        ]
+      else
+        []
+      end
+
+    {:ok, Keyword.merge(config, passed_in_socket_conf)} |> IO.inspect()
+  end
+
+  defp socket_file_descriptor do
+    case :systemd.listen_fds() do
+      [{fd, _} | _] when is_integer(fd) and fd > 0 -> fd
+      [fd | _] when is_integer(fd) and fd > 0 -> fd
+      _ -> nil
+    end
+  end
+
   # The session will be stored in the cookie and signed,
   # this means its contents can be read but not tampered with.
   # Set :encryption_salt if you would also like to encrypt it.

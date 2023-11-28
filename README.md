@@ -1,18 +1,13 @@
 # Soket
 
-To start your Phoenix server:
+With two terminals open run 
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+```
+# left
+systemd-socket-activate -l 8888 --fdname=tcp -E ERL_FLAGS='-kernel inet_backend socket' mix phx.server
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+# right
+nc localhost 8888
+```
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
-
-## Learn more
-
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+The `inet_backend` option doesn't seem to be making a difference. Both should work nowadays though.

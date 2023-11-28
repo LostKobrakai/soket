@@ -47,7 +47,9 @@ defmodule Soket.MixProject do
       {:gettext, "~> 0.20"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, ">= 0.0.0"}
+      {:bandit, ">= 0.0.0"},
+      {:systemd, "~> 0.6.2"},
+      {:extrace, ">= 0.0.0"}
     ]
   end
 
